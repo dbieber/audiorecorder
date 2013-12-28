@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <script type="text/javascript" src="../build/release/audiorecorder.js"></script>
+        <script type="text/javascript">
+            var config = {
+                'worker_path': '../../build/release/worker.js'
+            };
+            var clips = [];
+            var currentClip = 0;
+            var callback = function(clip) {
+                clips.push(clip);
+                var i = clips.length;
+                var newClipHTML = "<a id='clip" + i + "' href='javascript:setCurrentClip(" + i + ")'>" + i + "</a>";
+                document.getElementById("clips").innerHTML += newClipHTML;
+            };
+            var setCurrentClip = function(i) {
+                currentClip = i;
+            };
+        </script>
+    </head>
+    <body>
+        <p>
+        <button onclick="AudioRecorder.init(config);">
+            AudioRecorder.init(config)
+        </button>
+
+        <p>
+        <button onclick="AudioRecorder.record();">
+            AudioRecorder.record()
+        </button>
+        <button onclick="AudioRecorder.stopRecording(callback);">
+            AudioRecorder.stopRecording(callback)
+        </button>
+
+        <p>
+        <button onclick="AudioRecorder.playClip(clips[clips.length-1]);">
+            AudioRecorder.playClip(clip)
+        </button>
+        <input id="clip"></input>
+
+        <br/>
+        <button onclick="AudioRecorder.stopPlaying();">
+            AudioRecorder.stopPlaying()
+        </button>
+
+        <p>
+        Clips: <span id="clips"></span>
+    </body>
+</html>

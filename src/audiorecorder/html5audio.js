@@ -1,8 +1,7 @@
 // The HTML5 Audio middleware that does the recording in modern browsers
 var Html5Audio = {
-    // TODO(Bieber): Make sure the proper worker path is here after building
-    WORKER_PATH: 'worker.js';
-    worker: undefined
+    DEFAULT_WORKER_PATH: 'worker.js',
+    worker: undefined,
 
     audioContext: undefined,
     playingSources: [],
@@ -10,10 +9,12 @@ var Html5Audio = {
     ready: false,
     recording: false,
 
-    init: function() {
+    init: function(config) {
         Html5Audio.audioContext = new AudioContext();
         navigator.getUserMedia({audio: true}, Html5Audio._useStream, function(err){});
-        Html5Audio.worker = new Worker(Html5Audio.WORKER_PATH);
+
+        var worker_path = config.worker_path || Html5Audio.DEFAULT_WORKER_PATH;
+        Html5Audio.worker = new Worker(worker_path);
         Html5Audio.worker.onmessage = Html5Audio._handleMessage;
     },
 
@@ -25,7 +26,7 @@ var Html5Audio = {
         var bufferLen = 4096;
         var numChannelsIn = 1;
         var numChannelsOut = 1;
-        var node = this.context.createScriptProcessor(bufferLen, numChannelsIn, numChannelsOut);
+        var node = context.createScriptProcessor(bufferLen, numChannelsIn, numChannelsOut);
         node.onaudioprocess = Html5Audio._handleAudio;
 
         Html5Audio.ready = true;
@@ -63,7 +64,7 @@ var Html5Audio = {
         Html5Audio.worker.postMessage({
             command: 'clear'
         });
-    }
+    },
 
     playClip: function(clip, inHowLong, offset) {
         var when = Html5Audio.audioContext.currentTime + inHowLong;

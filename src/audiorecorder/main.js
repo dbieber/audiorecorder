@@ -5,7 +5,7 @@
 var AudioRecorder = {
     middleware: undefined, // HTML5 or Flash audio
 
-    init: function() {
+    init: function(config) {
         // Initializes the AudioRecorder
         window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
@@ -16,7 +16,7 @@ var AudioRecorder = {
         } else {
             AudioRecorder.middleware = FlashAudio;
         }
-        AudioRecorder.middleware.init();
+        AudioRecorder.middleware.init(config);
     },
 
     record: function() {
