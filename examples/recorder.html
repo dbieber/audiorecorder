@@ -1,5 +1,6 @@
 <html>
     <head>
+        <title>AudioRecorder Example</title>
         <script type="text/javascript" src="../build/release/audiorecorder.js"></script>
         <script type="text/javascript">
             var config = {
@@ -18,6 +19,10 @@
                     setCurrentClip(0);
                 }
             };
+            var convert = function(clip) {
+                var newClip = Clip.createFromSamples(decode(clip.speex));
+                callback(newClip);
+            }
 
             var currentClip = 0;
             var setCurrentClip = function(i) {
@@ -51,5 +56,15 @@
 
         <p>
         Clips: <span id="clips"></span>
+
+        <p>
+        <button onclick="convert(clips[currentClip]);">
+            newClip = Clip.createFromSamples(decode(clip.speex));
+        </button>
+
+        <p>
+        To run this example, run the command: python -m SimpleHTTPServer 8081<br/>
+        Then visit <a href="http://localhost:8081/examples/recorder.html">http://localhost:8081/examples/recorder.html</a>.<br/>
+        Or do the equivalent on your system...
     </body>
 </html>
