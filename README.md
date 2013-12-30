@@ -89,3 +89,8 @@ Creates a new clip object from the provided samples
 Returns the length of `clip`
 
 #####And more! Take a look at src/clip.js for the full API.
+
+Thanks
+------------
+
+AudioRecorder builds on an emscripten compiled speex codec [jpemartins/speex.js](https://github.com/jpemartins/speex.js/) and takes many lessons from [mattdiamond/Recorderjs](https://github.com/mattdiamond/Recorderjs) and [jwagener/recorder.js](https://github.com/jwagener/recorder.js/). I am developing AudioRecorder primarily as part of [Teach Everyone](http://teacheveryone.org), but am open sourcing it separately in the hope that it is more generally useful.
