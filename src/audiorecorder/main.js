@@ -49,7 +49,7 @@ var AudioRecorder = {
     },
 
     isRecording: function() {
-        // Returns True if currently recording, false otherwise
+        // Returns True if currently recording, False otherwise
         return AudioRecorder.middleware.isRecording();
     }
 };
