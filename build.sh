@@ -1,3 +1,4 @@
+#!/bin/bash
 mkdir -p build/temp build/release
 javascript-packager --jsFile src/speex/speex.config --path src/speex --destDir build/temp --destFile speex
 javascript-packager --jsFile src/worker/worker.config --path src/worker --destDir build/temp --destFile worker

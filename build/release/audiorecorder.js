@@ -78,11 +78,14 @@ var Html5Audio = {
         var mediaStreamSource = Html5Audio.audioContext.createMediaStreamSource(stream);
         var context = mediaStreamSource.context;
 
-        var bufferLen = 4096;
+        var bufferLen = 4*4096;
         var numChannelsIn = 1;
         var numChannelsOut = 1;
         var node = context.createScriptProcessor(bufferLen, numChannelsIn, numChannelsOut);
         node.onaudioprocess = Html5Audio._handleAudio;
+
+        mediaStreamSource.connect(node);
+        node.connect(context.destination);
 
         Html5Audio.ready = true;
     },
@@ -98,7 +101,16 @@ var Html5Audio = {
     },
 
     _handleMessage: function(event) {
+        switch(event.data.command) {
+            case 'get':
+            var clip = event.data.clip;
+            console.log(clip);
+            Html5Audio.cb(clip);
+            break;
 
+            case 'print':
+            console.log(event.data.message);
+        }
     },
 
     record: function() {
@@ -107,6 +119,7 @@ var Html5Audio = {
 
     stopRecording: function(cb) {
         if (Html5Audio.recording) {
+            Html5Audio.cb = cb; // TODO(Bieber): Be more robust.
             Html5Audio.recording = false;
             Html5Audio.worker.postMessage({
                 command: 'get'
@@ -125,10 +138,8 @@ var Html5Audio = {
         var when = Html5Audio.audioContext.currentTime + inHowLong;
         var samples = clip.samples;
 
-        // TODO(Bieber): Switch to one channel
-        var newBuffer = Html5Audio.audioContext.createBuffer(2, samples[0].length, clip.sampleRate);
-        newBuffer.getChannelData(0).set(samples[0]);
-        newBuffer.getChannelData(1).set(samples[1]);
+        var newBuffer = Html5Audio.audioContext.createBuffer(1, samples.length, clip.sampleRate);
+        newBuffer.getChannelData(0).set(samples);
 
         var newSource = Html5Audio.audioContext.createBufferSource();
         newSource.buffer = newBuffer;
@@ -172,7 +183,7 @@ var Clip = {
     create: function() {
         return {
             samples: [],
-            sampleRate: undefined,
+            sampleRate: 44100, // TODO(Bieber): Use actual sample rate
             speex: [],
             startTime: undefined,
         };
@@ -181,7 +192,6 @@ var Clip = {
     createFromSamples: function(samples) {
         var clip = Clip.create();
         Clip.setSamples(clip, samples);
-        clip.sampleRate = 44100;
         return clip;
     },
 
@@ -200,39 +210,30 @@ var Clip = {
         Clip.computeSpeex(clip);
     },
 
-    setSamplesAt: function(clip, data, time) {
-        var sampleRate = clip.sampleRate;
-        var sampleIndex = (time - clip.startTime) / sampleRate;
-        // TODO(Bieber): webworker this
-        for (var i = 0; i < data.length; i++) {
-            clip.samples[i] = data[i];
-        }
-        Clip.computeSpeex(clip);
-    },
-
     setSpeex: function(clip, data) {
         clip.speex = data;
         Clip.computeSamples(clip);
     },
 
-    setSpeexAt: function(clip, data, time) {
-        var speexRate = 256;
-        var sampleIndex = (time - clip.startTime) / speexRate;
-        // TODO(Bieber): webworker this
+    addSamples: function(clip, data) {
+        var speexData = encode(data);
         for (var i = 0; i < data.length; i++) {
-            clip.samples[i] = data[i];
+            clip.samples.push(data[i]);
         }
-        Clip.computeSamples(clip);
+        for (var i = 0; i < speexData.length; i++) {
+            clip.speex.push(speexData[i]);
+        }
     },
 
     computeSamples: function(clip) {
-        // Decodes speex data [TODO(Bieber): in a webworker] to get playable samples
+        // Decodes speex data to get playable samples
+        // TODO(Bieber): Make a copy
         clip.samples = decode(clip.speex);
-        clip.sampleRate = 44100;
     },
 
     computeSpeex: function(clip) {
-        // Encodes samples [TODO(Bieber): in a webworker] to get smaller speex data
+        // Encodes samples to get smaller speex data
+        // TODO(Bieber): Make a copy
         clip.speex = encode(clip.samples);
     },
 
@@ -1455,3 +1456,18 @@ for(var la=this.bits,r=this.input,La=this.buffer,gb=this.state;M<z.length;)s&&co
 function Ogg(V){this.stream=V;this.pageExpr=new BitString("char(4):capturePattern;1:version;1:headerType;8:granulePos;4:serial;4:sequence;4:checksum;1:pageSegments;1:segments;char():frames;",{bytes:true,bigEndian:false});this.rawPages=[];this.pages=[];this.pageIdx=0;this.frames=[];this.unpacked=false}
 Ogg.prototype.parsePage=function(V){var z=this.pageExpr.unpack(V);this.rawPages.push(V);z.bos=function(){return this.header==2};z.cont=function(){return this.header==0};z.eos=function(){return this.header==4};for(V=0;z.frames[V]=="&";)++V;z.frames=z.frames.substr(V);this.pages.push(z);this.frames.push(z.frames)};Ogg.prototype.pageOut=function(){return this.pageIdx+=1};Ogg.prototype.pages=function(){return this.pages};
 Ogg.prototype.unpack=function(){if(!this.unpacked){for(var V,z=0;z>=0;)V=this.stream.indexOf("OggS",z),z=this.stream.indexOf("OggS",V+4),V=this.stream.substring(V,z!=-1?z:void 0),this.parsePage(V);this.headers=this.frames.slice(0,2);this.data=this.frames.slice(2);this.unpacked=true;return this.pages}};Ogg.prototype.bitstream=function(){return!this.unpacked?null:this.data.join("")};
+var codec = new Speex({quality: 6});
+
+var encode = function(buffer) {
+    var datalen = buffer.length;
+    var shorts = new Int16Array(datalen);
+    for(var i=0; i<datalen; i++) {
+      shorts[i] = Math.floor(Math.min(1.0, Math.max(-1.0, buffer[i])) * 32767);
+    }
+
+    return codec.encode(shorts, true);
+}
+
+var decode = function(buffer) {
+    return codec.decode(buffer);
+}

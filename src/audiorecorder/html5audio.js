@@ -23,11 +23,14 @@ var Html5Audio = {
         var mediaStreamSource = Html5Audio.audioContext.createMediaStreamSource(stream);
         var context = mediaStreamSource.context;
 
-        var bufferLen = 4096;
+        var bufferLen = 4*4096;
         var numChannelsIn = 1;
         var numChannelsOut = 1;
         var node = context.createScriptProcessor(bufferLen, numChannelsIn, numChannelsOut);
         node.onaudioprocess = Html5Audio._handleAudio;
+
+        mediaStreamSource.connect(node);
+        node.connect(context.destination);
 
         Html5Audio.ready = true;
     },
@@ -43,7 +46,16 @@ var Html5Audio = {
     },
 
     _handleMessage: function(event) {
+        switch(event.data.command) {
+            case 'get':
+            var clip = event.data.clip;
+            console.log(clip);
+            Html5Audio.cb(clip);
+            break;
 
+            case 'print':
+            console.log(event.data.message);
+        }
     },
 
     record: function() {
@@ -52,6 +64,7 @@ var Html5Audio = {
 
     stopRecording: function(cb) {
         if (Html5Audio.recording) {
+            Html5Audio.cb = cb; // TODO(Bieber): Be more robust.
             Html5Audio.recording = false;
             Html5Audio.worker.postMessage({
                 command: 'get'
@@ -70,10 +83,8 @@ var Html5Audio = {
         var when = Html5Audio.audioContext.currentTime + inHowLong;
         var samples = clip.samples;
 
-        // TODO(Bieber): Switch to one channel
-        var newBuffer = Html5Audio.audioContext.createBuffer(2, samples[0].length, clip.sampleRate);
-        newBuffer.getChannelData(0).set(samples[0]);
-        newBuffer.getChannelData(1).set(samples[1]);
+        var newBuffer = Html5Audio.audioContext.createBuffer(1, samples.length, clip.sampleRate);
+        newBuffer.getChannelData(0).set(samples);
 
         var newSource = Html5Audio.audioContext.createBufferSource();
         newSource.buffer = newBuffer;

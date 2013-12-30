@@ -6,15 +6,24 @@
                 'worker_path': '../../build/release/worker.js'
             };
             var clips = [];
-            var currentClip = 0;
+
             var callback = function(clip) {
-                clips.push(clip);
                 var i = clips.length;
-                var newClipHTML = "<a id='clip" + i + "' href='javascript:setCurrentClip(" + i + ")'>" + i + "</a>";
+                clips.push(clip);
+                var newClipHTML = "<a id='clip" + i + "' href='javascript:setCurrentClip(" + i + ")'>" + i + "</a> ";
                 document.getElementById("clips").innerHTML += newClipHTML;
+
+                // Select the first clip.
+                if (i == 0) {
+                    setCurrentClip(0);
+                }
             };
+
+            var currentClip = 0;
             var setCurrentClip = function(i) {
+                document.getElementById("clip" + currentClip).style.color = "blue";
                 currentClip = i;
+                document.getElementById("clip" + i).style.color = "red";
             };
         </script>
     </head>
@@ -33,12 +42,9 @@
         </button>
 
         <p>
-        <button onclick="AudioRecorder.playClip(clips[clips.length-1]);">
+        <button onclick="AudioRecorder.playClip(clips[currentClip]);">
             AudioRecorder.playClip(clip)
         </button>
-        <input id="clip"></input>
-
-        <br/>
         <button onclick="AudioRecorder.stopPlaying();">
             AudioRecorder.stopPlaying()
         </button>
