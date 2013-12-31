@@ -31,6 +31,7 @@ var Recorder = {
     },
 
     getClip: function() {
+        Clip.computeSpeex(Recorder.clip);
         return Recorder.clip;
     },
 

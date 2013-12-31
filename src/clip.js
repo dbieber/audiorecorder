@@ -36,13 +36,10 @@ var Clip = {
     },
 
     addSamples: function(clip, data) {
-        var speexData = encode(data);
         for (var i = 0; i < data.length; i++) {
             clip.samples.push(data[i]);
         }
-        for (var i = 0; i < speexData.length; i++) {
-            clip.speex.push(speexData[i]);
-        }
+        // Note: Leaves speex out of date.
     },
 
     computeSamples: function(clip) {
