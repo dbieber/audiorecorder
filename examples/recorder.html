@@ -39,18 +39,18 @@
         </button>
 
         <p>
-        <button onclick="AudioRecorder.record();">
+        <button class="needs_init" onclick="AudioRecorder.record();">
             AudioRecorder.record()
         </button>
-        <button onclick="AudioRecorder.stopRecording(callback);">
+        <button class="needs_init"  onclick="AudioRecorder.stopRecording(callback);">
             AudioRecorder.stopRecording(callback)
         </button>
 
         <p>
-        <button onclick="AudioRecorder.playClip(clips[currentClip]);">
+        <button class="needs_clip"  onclick="AudioRecorder.playClip(clips[currentClip]);">
             AudioRecorder.playClip(clip)
         </button>
-        <button onclick="AudioRecorder.stopPlaying();">
+        <button class="needs_clip" onclick="AudioRecorder.stopPlaying();">
             AudioRecorder.stopPlaying()
         </button>
 
@@ -58,7 +58,7 @@
         Clips: <span id="clips"></span>
 
         <p>
-        <button onclick="convert(clips[currentClip]);">
+        <button class="needs_clip" onclick="convert(clips[currentClip]);">
             newClip = Clip.createFromSpeex(clip.speex);
         </button>
 
