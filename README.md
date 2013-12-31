@@ -3,7 +3,7 @@ AudioRecorder
 
 AudioRecorder [seeks to be] a cross platform javascript utility for recording and playing audio in all major browsers.
 The clips that AudioRecorder produces contain both raw wave audio data and speex encoded data.
-Included with AudioRecorder is a utility for encoding raw samples to speex (`encode(samples)`) and decoding from speex (`decode(speex)`). If you are uploading audio data to a server, it makes sense to upload only the speex data, and to reconstruct the samples client side later for playback.
+Included with AudioRecorder is a utility for encoding raw samples to speex (`Codec.encode(samples)`) and decoding from speex (`Codec.decode(speex)`). If you are uploading audio data to a server, upload only the speex data and reconstruct the samples client side later for playback.
 
 To use AudioRecorder:
 ------------
@@ -78,6 +78,8 @@ An array of samples representing the audio signal
 
 The speex encoding of the audio signal. If you have to save something server side, save this.
 
+##### The following methods and more are provided by the `Clip` object. Long running methods like *createFromSpeex* should not be called directly since they will cause the browser to hang while they run. Instead they should be called only in a web worker, for instance by the AudioRecorder API.
+
 >Clip.create()
 
 Creates a new empty clip object
@@ -86,11 +88,26 @@ Creates a new empty clip object
 
 Creates a new clip object from the provided samples
 
+>Clip.createFromSamples(speex)
+
+Creates a new clip object from the provided speex encoded data
+
 >Clip.getLength(clip)
 
 Returns the length of `clip`
 
 #####And more! Take a look at src/clip.js for the full API.
+
+Codec API
+------------
+
+>Codec.encode(samples)
+
+Returns a buffer containing the speex data representing the audio signal
+
+>Codec.decode(speex)
+
+Returns a buffer containing the PCM data representing the audio signal
 
 Thanks
 ------------

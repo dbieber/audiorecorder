@@ -27,7 +27,7 @@ var Recorder = {
     clip: Clip.create(),
 
     put: function(buffer) {
-        Clip.addSamples(Recorder.clip, buffer);
+        Clip._addSamples(Recorder.clip, buffer);
     },
 
     getClip: function() {
