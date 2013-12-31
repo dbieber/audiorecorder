@@ -29,6 +29,8 @@ AudioRecorder API
 
 #### The best documentation is the code itself. Have a look at *src/audiorecorder/audiorecorder.js*?
 
+#### You will find that *examples/recorder.html* does a very nice job of demonstrating the API.
+
 >AudioRecorder.init(config);
 
 Initializes the AudioRecorder.
