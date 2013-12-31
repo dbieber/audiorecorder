@@ -27,9 +27,9 @@ To use AudioRecorder:
 AudioRecorder API
 ------------
 
-#### The best documentation is the code itself. Have a look at *src/audiorecorder/audiorecorder.js*?
+#### The best documentation is the code itself. Have a look at [src/audiorecorder/main.js](src/audiorecorder/main.js)?
 
-#### You will find that *examples/recorder.html* does a very nice job of demonstrating the API.
+##### You will also find that [examples/recorder.html](examples/recorder.html) does a very nice job of demonstrating the API.
 
 >AudioRecorder.init(config);
 
@@ -68,7 +68,7 @@ Returns True if currently recording, False otherwise
 Clip API
 ------------
 
-#### The best documentation is the code itself. Have a look at *src/clip.js*?
+#### The best documentation is the code itself. Have a look at [src/clip.js](src/clip.js)?
 
 >clip.samples
 
