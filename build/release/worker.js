@@ -1205,21 +1205,23 @@ for(var la=this.bits,r=this.input,La=this.buffer,gb=this.state;M<z.length;)s&&co
 function Ogg(V){this.stream=V;this.pageExpr=new BitString("char(4):capturePattern;1:version;1:headerType;8:granulePos;4:serial;4:sequence;4:checksum;1:pageSegments;1:segments;char():frames;",{bytes:true,bigEndian:false});this.rawPages=[];this.pages=[];this.pageIdx=0;this.frames=[];this.unpacked=false}
 Ogg.prototype.parsePage=function(V){var z=this.pageExpr.unpack(V);this.rawPages.push(V);z.bos=function(){return this.header==2};z.cont=function(){return this.header==0};z.eos=function(){return this.header==4};for(V=0;z.frames[V]=="&";)++V;z.frames=z.frames.substr(V);this.pages.push(z);this.frames.push(z.frames)};Ogg.prototype.pageOut=function(){return this.pageIdx+=1};Ogg.prototype.pages=function(){return this.pages};
 Ogg.prototype.unpack=function(){if(!this.unpacked){for(var V,z=0;z>=0;)V=this.stream.indexOf("OggS",z),z=this.stream.indexOf("OggS",V+4),V=this.stream.substring(V,z!=-1?z:void 0),this.parsePage(V);this.headers=this.frames.slice(0,2);this.data=this.frames.slice(2);this.unpacked=true;return this.pages}};Ogg.prototype.bitstream=function(){return!this.unpacked?null:this.data.join("")};
-var codec = new Speex({quality: 6});
+var Codec = {
+    speex: new Speex({quality: 6}),
 
-var encode = function(buffer) {
-    var datalen = buffer.length;
-    var shorts = new Int16Array(datalen);
-    for(var i=0; i<datalen; i++) {
-      shorts[i] = Math.floor(Math.min(1.0, Math.max(-1.0, buffer[i])) * 32767);
+    // TODO(Bieber): See if you need to make a copy before returning the buffer
+    encode: function(buffer) {
+        var datalen = buffer.length;
+        var shorts = new Int16Array(datalen);
+        for(var i=0; i<datalen; i++) {
+            shorts[i] = Math.floor(Math.min(1.0, Math.max(-1.0, buffer[i])) * 32767);
+        }
+        return Codec.speex.encode(shorts, true);
+    },
+
+    decode: function(buffer) {
+        return Codec.speex.decode(buffer);
     }
-
-    return codec.encode(shorts, true);
-}
-
-var decode = function(buffer) {
-    return codec.decode(buffer);
-}
+};
 // Defines the Clip API
 var Clip = {
     create: function() {
@@ -1257,7 +1259,7 @@ var Clip = {
         Clip.computeSamples(clip);
     },
 
-    addSamples: function(clip, data) {
+    _addSamples: function(clip, data) {
         for (var i = 0; i < data.length; i++) {
             clip.samples.push(data[i]);
         }
@@ -1267,13 +1269,13 @@ var Clip = {
     computeSamples: function(clip) {
         // Decodes speex data to get playable samples
         // TODO(Bieber): Make a copy
-        clip.samples = decode(clip.speex);
+        clip.samples = Codec.decode(clip.speex);
     },
 
     computeSpeex: function(clip) {
         // Encodes samples to get smaller speex data
         // TODO(Bieber): Make a copy
-        clip.speex = encode(clip.samples);
+        clip.speex = Codec.encode(clip.samples);
     },
 
     getStartTime: function(clip) {
@@ -1285,7 +1287,7 @@ var Clip = {
     },
 
     getLength: function(clip) {
-        return 1000 * clip.samples[0].length / clip.sampleRate;
+        return 1000 * clip.samples.length / clip.sampleRate;
     }
 };
 // Main code for audiorecorder's web worker
@@ -1317,7 +1319,7 @@ var Recorder = {
     clip: Clip.create(),
 
     put: function(buffer) {
-        Clip.addSamples(Recorder.clip, buffer);
+        Clip._addSamples(Recorder.clip, buffer);
     },
 
     getClip: function() {

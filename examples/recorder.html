@@ -4,7 +4,7 @@
         <script type="text/javascript" src="../build/release/audiorecorder.js"></script>
         <script type="text/javascript">
             var config = {
-                'worker_path': '../../build/release/worker.js'
+                'worker_path': '../build/release/worker.js'
             };
             var clips = [];
 
@@ -20,7 +20,7 @@
                 }
             };
             var convert = function(clip) {
-                var newClip = Clip.createFromSamples(decode(clip.speex));
+                var newClip = Clip.createFromSpeex(clip.speex);
                 callback(newClip);
             }
 
@@ -59,7 +59,7 @@
 
         <p>
         <button onclick="convert(clips[currentClip]);">
-            newClip = Clip.createFromSamples(decode(clip.speex));
+            newClip = Clip.createFromSpeex(clip.speex);
         </button>
 
         <p>
