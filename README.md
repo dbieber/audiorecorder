@@ -96,7 +96,7 @@ Creates a new clip object from the provided speex encoded data
 
 Returns the length of `clip`
 
-#####And more! Take a look at src/clip.js for the full API.
+#####And more! Take a look at [src/clip.js](src/clip.js) for the full API.
 
 Codec API
 ------------
