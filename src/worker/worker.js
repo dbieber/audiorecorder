@@ -6,7 +6,6 @@
 //     'message': 'You're message here
 // });
 
-
 this.onmessage = function(e) {
     switch(e.data.command) {
         case 'put':
