@@ -1,12 +1,16 @@
 // Main code for audiorecorder's web worker
+
+// To debug from this web worker, console.log by sending the following message
+// this.postMessage({
+//     'command': 'print',
+//     'message': 'You're message here
+// });
+
+
 this.onmessage = function(e) {
     switch(e.data.command) {
         case 'put':
         Recorder.put(e.data.buffer);
-        this.postMessage({
-            'command': 'print',
-            'message': 'put done'
-        });
         break;
 
         case 'get':
