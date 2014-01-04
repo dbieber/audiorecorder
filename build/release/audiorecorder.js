@@ -68,7 +68,7 @@ var Html5Audio = {
         Html5Audio.audioContext = new AudioContext();
         navigator.getUserMedia({audio: true}, Html5Audio._useStream, function(err){});
 
-        var worker_path = config.worker_path || Html5Audio.DEFAULT_WORKER_PATH;
+        var worker_path = (config && config.worker_path) || Html5Audio.DEFAULT_WORKER_PATH;
         Html5Audio.worker = new Worker(worker_path);
         Html5Audio.worker.onmessage = Html5Audio._handleMessage;
     },
