@@ -176,6 +176,10 @@ var FlashAudio = {
 
     stop: function(cb) {
 
+    },
+
+    isRecording: function() {
+        return false;
     }
 };
 // Defines the Clip API
