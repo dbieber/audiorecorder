@@ -112,4 +112,4 @@ Returns a buffer containing the PCM data representing the audio signal
 Thanks
 ------------
 
-AudioRecorder builds on an [emscripten](https://github.com/kripken/emscripten) compiled speex codec [jpemartins/speex.js](https://github.com/jpemartins/speex.js/) and takes many lessons from [mattdiamond/Recorderjs](https://github.com/mattdiamond/Recorderjs) and [jwagener/recorder.js](https://github.com/jwagener/recorder.js/). I am developing AudioRecorder primarily as part of [Teach Everyone](http://teacheveryone.org), but am open sourcing it separately in the hope that it is more generally useful.
+AudioRecorder builds on an [emscripten](https://github.com/kripken/emscripten) compiled speex codec [jpemartins/speex.js](https://github.com/jpemartins/speex.js/) and takes many lessons from [mattdiamond/Recorderjs](https://github.com/mattdiamond/Recorderjs) and [jwagener/recorder.js](https://github.com/jwagener/recorder.js/). I am developing AudioRecorder primarily as part of [Teach Everyone](http://teacheveryone.org), but am open sourcing it separately with the hope that it is more generally useful.
