@@ -3,7 +3,7 @@
 // To debug from this web worker, console.log by sending the following message
 // this.postMessage({
 //     'command': 'print',
-//     'message': 'You're message here
+//     'message': 'Your message here'
 // });
 
 this.onmessage = function(e) {
