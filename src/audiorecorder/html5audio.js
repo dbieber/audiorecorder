@@ -14,8 +14,12 @@ var Html5Audio = {
         navigator.getUserMedia({audio: true}, Html5Audio._useStream, function(err){});
 
         var worker_path = (config && config.worker_path) || Html5Audio.DEFAULT_WORKER_PATH;
-        Html5Audio.worker = new Worker(worker_path);
-        Html5Audio.worker.onmessage = Html5Audio._handleMessage;
+        try {
+            Html5Audio.worker = new Worker(worker_path);
+            Html5Audio.worker.onmessage = Html5Audio._handleMessage;
+        } catch(error) {
+            console.error(error);
+        }
     },
 
     // Called by init with a MediaStream object
