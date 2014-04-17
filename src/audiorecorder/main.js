@@ -40,6 +40,12 @@ var AudioRecorder = {
     playClip: function(clip, inHowLong, offset) {
         // Plays clip starting from the appropriate position at the
         // appropriate time
+        if (inHowLong === undefined) {
+            inHowLong = 0;
+        }
+        if (offset === undefined) {
+            offset = 0;
+        }
         AudioRecorder.middleware.playClip(clip, inHowLong, offset);
     },
 
