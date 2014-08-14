@@ -9,9 +9,13 @@ var Html5Audio = {
     ready: false,
     recording: false,
 
+    clip: undefined,
+
     init: function(config) {
         Html5Audio.audioContext = new AudioContext();
         navigator.getUserMedia({audio: true}, Html5Audio._useStream, function(err){});
+
+        Html5Audio.clip = Clip.create(); // new
 
         var worker_path = (config && config.worker_path) || Html5Audio.DEFAULT_WORKER_PATH;
         try {
@@ -27,7 +31,7 @@ var Html5Audio = {
         var mediaStreamSource = Html5Audio.audioContext.createMediaStreamSource(stream);
         var context = mediaStreamSource.context;
 
-        var bufferLen = 4*4096;
+        var bufferLen = 4 * 4096;
         var numChannelsIn = 1;
         var numChannelsOut = 1;
         var node = context.createScriptProcessor(bufferLen, numChannelsIn, numChannelsOut);
@@ -40,8 +44,14 @@ var Html5Audio = {
     },
 
     _handleAudio: function(event) {
+        // Buffer has length specified in _useStream
         var buffer = event.inputBuffer.getChannelData(0);
         if (Html5Audio.recording) {
+            // Add the samples immediately to the Clip
+            Clip.addSamples(Html5Audio.clip, buffer);
+
+            // In the background, in multiples of 160, encode the samples
+            // And push the encoded data back into the Clip ASAP.
             Html5Audio.worker.postMessage({
                 command: 'put',
                 buffer: buffer
@@ -51,14 +61,18 @@ var Html5Audio = {
 
     _handleMessage: function(event) {
         switch(event.data.command) {
-            case 'get':
-            var clip = event.data.clip;
-            console.log(clip);
-            Html5Audio.cb(clip);
+            case 'speex':
+            var data = event.data.data;
+            Clip.addSpeex(Html5Audio.clip, data);
+            break;
+
+            case 'done':
+            Html5Audio.cb(Html5Audio.clip);
             break;
 
             case 'print':
             console.log(event.data.message);
+            break;
         }
     },
 
@@ -68,10 +82,10 @@ var Html5Audio = {
 
     stopRecording: function(cb) {
         if (Html5Audio.recording) {
-            Html5Audio.cb = cb; // TODO(Bieber): Be more robust.
+            Html5Audio.cb = cb; // TODO(Bieber): Be more robust maybe with ids
             Html5Audio.recording = false;
             Html5Audio.worker.postMessage({
-                command: 'get'
+                command: 'finalize'
             });
             Html5Audio.clear();
         }

@@ -1,45 +1,63 @@
 // Main code for audiorecorder's web worker
 
 // To debug from this web worker, console.log by sending the following message
-// this.postMessage({
+// self.postMessage({
 //     'command': 'print',
 //     'message': 'Your message here'
 // });
 
-this.onmessage = function(e) {
+var self = this;
+self.onmessage = function(e) {
     switch(e.data.command) {
         case 'put':
-        Recorder.put(e.data.buffer);
+        Encoder.put(e.data.buffer);
         break;
 
-        case 'get':
-        var clip = Recorder.getClip();
-        this.postMessage({
-            'command': 'get',
-            'clip': clip
-        });
+        case 'finalize':
+        Encoder.finalize();
         break;
 
         case 'clear':
-        Recorder.clear();
+        Encoder.clear();
         break;
     }
 };
 
-var Recorder = {
-    clip: Clip.create(),
+var Encoder = {
+    samples: [],
 
     put: function(buffer) {
-        Clip._addSamples(Recorder.clip, buffer);
+        Array.prototype.push.apply(Encoder.samples, buffer);
     },
 
-    getClip: function() {
-        Clip.computeSpeex(Recorder.clip);
-        return Recorder.clip;
+    process: function() {
+        // TODO(Bieber): Consider switching samples and remaining for perf.
+        var amountTotal = Encoder.samples.length;
+        var amountRemaining = amountTotal % 160;
+        var toProcess = Encoder.samples.splice(amountRemaining);
+
+        if (toProcess.length > 0) {
+            var encoded = Codec.encode(toProcess);
+            self.postMessage({
+                'command': 'speex',
+                'data': encoded
+            });
+        }
+    },
+
+    finalize: function() {
+        while (Encoder.samples.length % 160 !== 0) {
+            Encoder.samples.push(0);  // pad with silence
+        }
+        Encoder.process();
+        self.postMessage({
+            'command': 'done'
+        });
     },
 
     clear: function() {
-        Recorder.clip = Clip.create();
+        Encoder.samples = [];
     }
 };
 
+setInterval(Encoder.process, 200);

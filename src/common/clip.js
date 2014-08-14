@@ -35,19 +35,24 @@ var Clip = {
         Clip.computeSamples(clip);
     },
 
-    _addSamples: function(clip, data) {
-        for (var i = 0; i < data.length; i++) {
-            clip.samples.push(data[i]);
-        }
-        // Note: Leaves speex out of date.
+    // WARNING: Leaves speex out of date.
+    addSamples: function(clip, data) {
+        Array.prototype.push.apply(clip.samples, data);
     },
 
+    // WARNING: Leaves samples out of date.
+    addSpeex: function(clip, data) {
+        Array.prototype.push.apply(clip.speex, data);
+    },
+
+    // WARNING: Potentially slow.
     computeSamples: function(clip) {
         // Decodes speex data to get playable samples
         // TODO(Bieber): Make a copy
         clip.samples = Codec.decode(clip.speex);
     },
 
+    // WARNING: Potentially slow.
     computeSpeex: function(clip) {
         // Encodes samples to get smaller speex data
         // TODO(Bieber): Make a copy
@@ -62,6 +67,7 @@ var Clip = {
         return clip.startTime + Clip.getLength(clip);
     },
 
+    // Returns clip length in milliseconds.
     getLength: function(clip) {
         return 1000 * clip.samples.length / clip.sampleRate;
     }
