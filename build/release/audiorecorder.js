@@ -1362,7 +1362,6 @@ var Html5Audio = {
         switch(event.data.command) {
             case 'speex':
             var data = event.data.data;
-            console.log('speex' + data.length);
             Clip.addSpeex(Html5Audio.clip, data);
             break;
 
