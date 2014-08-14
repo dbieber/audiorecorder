@@ -1,5 +1,5 @@
 var Codec = {
-    speex: new Speex({quality: 2}),
+    speex: new Speex({quality: 4}),
 
     // TODO(Bieber): See if you need to make a copy before returning the buffer
     encode: function(buffer) {

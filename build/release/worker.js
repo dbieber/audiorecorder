@@ -1206,7 +1206,7 @@ function Ogg(V){this.stream=V;this.pageExpr=new BitString("char(4):capturePatter
 Ogg.prototype.parsePage=function(V){var z=this.pageExpr.unpack(V);this.rawPages.push(V);z.bos=function(){return this.header==2};z.cont=function(){return this.header==0};z.eos=function(){return this.header==4};for(V=0;z.frames[V]=="&";)++V;z.frames=z.frames.substr(V);this.pages.push(z);this.frames.push(z.frames)};Ogg.prototype.pageOut=function(){return this.pageIdx+=1};Ogg.prototype.pages=function(){return this.pages};
 Ogg.prototype.unpack=function(){if(!this.unpacked){for(var V,z=0;z>=0;)V=this.stream.indexOf("OggS",z),z=this.stream.indexOf("OggS",V+4),V=this.stream.substring(V,z!=-1?z:void 0),this.parsePage(V);this.headers=this.frames.slice(0,2);this.data=this.frames.slice(2);this.unpacked=true;return this.pages}};Ogg.prototype.bitstream=function(){return!this.unpacked?null:this.data.join("")};
 var Codec = {
-    speex: new Speex({quality: 2}),
+    speex: new Speex({quality: 4}),
 
     // TODO(Bieber): See if you need to make a copy before returning the buffer
     encode: function(buffer) {
@@ -1300,13 +1300,13 @@ var Clip = {
 // Main code for audiorecorder's web worker
 
 // To debug from this web worker, console.log by sending the following message
-// self.postMessage({
+// _this.postMessage({
 //     'command': 'print',
 //     'message': 'Your message here'
 // });
 
-var self = this;
-self.onmessage = function(e) {
+var _this = this;
+_this.onmessage = function(e) {
     switch(e.data.command) {
         case 'put':
         Encoder.put(e.data.buffer);
@@ -1337,7 +1337,7 @@ var Encoder = {
 
         if (toProcess.length > 0) {
             var encoded = Codec.encode(toProcess);
-            self.postMessage({
+            _this.postMessage({
                 'command': 'speex',
                 'data': encoded
             });
@@ -1349,7 +1349,7 @@ var Encoder = {
             Encoder.samples.push(0);  // pad with silence
         }
         Encoder.process();
-        self.postMessage({
+        _this.postMessage({
             'command': 'done'
         });
     },

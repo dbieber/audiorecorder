@@ -1,13 +1,13 @@
 // Main code for audiorecorder's web worker
 
 // To debug from this web worker, console.log by sending the following message
-// self.postMessage({
+// _this.postMessage({
 //     'command': 'print',
 //     'message': 'Your message here'
 // });
 
-var self = this;
-self.onmessage = function(e) {
+var _this = this;
+_this.onmessage = function(e) {
     switch(e.data.command) {
         case 'put':
         Encoder.put(e.data.buffer);
@@ -38,7 +38,7 @@ var Encoder = {
 
         if (toProcess.length > 0) {
             var encoded = Codec.encode(toProcess);
-            self.postMessage({
+            _this.postMessage({
                 'command': 'speex',
                 'data': encoded
             });
@@ -50,7 +50,7 @@ var Encoder = {
             Encoder.samples.push(0);  // pad with silence
         }
         Encoder.process();
-        self.postMessage({
+        _this.postMessage({
             'command': 'done'
         });
     },
