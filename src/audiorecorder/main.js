@@ -32,6 +32,10 @@ var AudioRecorder = {
         AudioRecorder.middleware.stopRecording(cb);
     },
 
+    getClip: function() {
+        return AudioRecorder.middleware.getClip();
+    },
+
     clear: function() {
         // Clears the current clip back to empty
         AudioRecorder.middleware.clear();

@@ -3,33 +3,62 @@
         <title>AudioRecorder Example</title>
         <script type="text/javascript" src="../build/release/audiorecorder.js"></script>
         <script type="text/javascript">
-            var config = {
-                'worker_path': '../build/release/worker.js'
-            };
-            var clips = [];
+var config = {
+    'worker_path': '../build/release/worker.js'
+};
+var clips = [];
 
-            var callback = function(clip) {
-                var i = clips.length;
-                clips.push(clip);
-                var newClipHTML = "<a id='clip" + i + "' href='javascript:setCurrentClip(" + i + ")'>" + i + "</a> ";
-                document.getElementById("clips").innerHTML += newClipHTML;
+var addClip = function(clip) {
+    var i = clips.length;
+    clips.push(clip);
 
-                // Select the first clip.
-                if (i == 0) {
-                    setCurrentClip(0);
-                }
-            };
-            var convert = function(clip) {
-                var newClip = Clip.createFromSpeex(clip.speex);
-                callback(newClip);
-            }
+    var newClipHTML = "<a id='clip" + i + "' href='javascript:setCurrentClip(" + i + ")'>" + i + "</a> ";
+    document.getElementById("clips").innerHTML += newClipHTML;
 
-            var currentClip = 0;
-            var setCurrentClip = function(i) {
-                document.getElementById("clip" + currentClip).style.color = "blue";
-                currentClip = i;
-                document.getElementById("clip" + i).style.color = "red";
-            };
+    // Select the first clip.
+    if (i == 0) {
+        setCurrentClip(0);
+    }
+}
+
+var record = function() {
+    AudioRecorder.record();
+    addClip(AudioRecorder.getClip());
+};
+
+var callback = function(clip) {
+    var el = document.getElementById("clip" + (clips.length - 1));
+    el.innerText += "*";
+};
+
+var convert = function(clip) {
+    var newClip = Clip.createFromSpeex(clip.speex);
+    addClip(newClip);
+    callback(newClip);
+};
+
+var download = function(clip) {
+    var file = FileHandler.speexFile(clip.samples);
+    var filename = "clip" + currentClip;
+
+    function addDownloadLink(filename, sel, file, mimetype) {
+        var url = "data:" + mimetype + ";base64," + btoa(file);
+        var container = document.querySelector(sel);
+        var anchor =  "<br/><a download=\"" + filename + "\" href=\"" +
+            url + "\">" + filename + " (" + file.length/1024.0 + " Kbytes)</a>";
+
+        container.innerHTML += anchor;
+    }
+
+    addDownloadLink(filename + ".ogg", ".downloads", file, "audio/ogg");
+};
+
+var currentClip = 0;
+var setCurrentClip = function(i) {
+    document.getElementById("clip" + currentClip).style.color = "blue";
+    currentClip = i;
+    document.getElementById("clip" + i).style.color = "red";
+};
         </script>
     </head>
     <body>
@@ -39,7 +68,7 @@
         </button>
 
         <p>
-        <button class="needs_init" onclick="AudioRecorder.record();">
+        <button class="needs_init" onclick="record();">
             AudioRecorder.record()
         </button>
         <button class="needs_init"  onclick="AudioRecorder.stopRecording(callback);">
@@ -57,10 +86,20 @@
         <p>
         Clips: <span id="clips"></span>
 
+        <p>Red indicates the currently selected clip. An asterisk (*) indicates the Speex data is available.</p>
+
         <p>
         <button class="needs_clip" onclick="convert(clips[currentClip]);">
             newClip = Clip.createFromSpeex(clip.speex);
         </button>
+
+        <p>
+            Experimental:
+        <button class="needs_clip" onclick="download(clips[currentClip]);">
+            addDownloadLink(FileHandler.speexFile(clip.samples));
+        </button>
+
+        <div class="downloads"></div>
 
         <p>
         To run this example locally, from the AudioRecorder directory run the command:<br/>

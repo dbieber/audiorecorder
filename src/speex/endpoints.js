@@ -61,7 +61,7 @@ var FileHandler = {
             vendor_length: comment.length
         });
 
-        var result = oggdata.mux([spxhdr.raw, spxcmt.raw, spxdata]);
+        var result = oggdata.mux([spxhdr, spxcmt, spxdata]);
         return result;
     }
 };

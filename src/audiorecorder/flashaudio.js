@@ -7,7 +7,23 @@ var FlashAudio = {
 
     },
 
-    stop: function(cb) {
+    stopRecording: function(cb) {
+
+    },
+
+    getClip: function() {
+
+    },
+
+    clear: function() {
+
+    },
+
+    playClip: function(clip, inHowLong, offset) {
+
+    },
+
+    stopPlaying: function(cb) {
 
     },
 

@@ -91,6 +91,10 @@ var Html5Audio = {
         }
     },
 
+    getClip: function() {
+        return Html5Audio.clip;
+    },
+
     clear: function() {
         Html5Audio.worker.postMessage({
             command: 'clear'
