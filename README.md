@@ -94,7 +94,7 @@ Creates a new clip object from the provided speex encoded data
 
 >Clip.getLength(clip)
 
-Returns the length of `clip`
+Returns the length of `clip` in milliseconds
 
 #####And more! Take a look at [src/clip.js](src/clip.js) for the full API.
 
