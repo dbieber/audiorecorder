@@ -24,6 +24,8 @@ _this.onmessage = function(e) {
 };
 
 var Encoder = {
+    FRAME_SIZE: 320,
+
     samples: [],
 
     put: function(buffer) {
@@ -31,10 +33,9 @@ var Encoder = {
     },
 
     process: function() {
-        // TODO(Bieber): Consider switching samples and remaining for perf.
         var amountTotal = Encoder.samples.length;
-        var amountRemaining = amountTotal % 160;
-        var toProcess = Encoder.samples.splice(amountRemaining);
+        var amountToProcess = amountTotal - amountTotal % Encoder.FRAME_SIZE;
+        var toProcess = Encoder.samples.splice(0, amountToProcess);
 
         if (toProcess.length > 0) {
             var encoded = Codec.encode(toProcess);
@@ -46,7 +47,7 @@ var Encoder = {
     },
 
     finalize: function() {
-        while (Encoder.samples.length % 160 !== 0) {
+        while (Encoder.samples.length % Encoder.FRAME_SIZE !== 0) {
             Encoder.samples.push(0);  // pad with silence
         }
         Encoder.process();
