@@ -1746,7 +1746,7 @@ Ogg.prototype.bitstream = function () {
 	return this.data.join("");
 };
 var Codec = {
-    speex: new Speex({quality: 4}),
+    speex: new Speex({quality: 6}),
 
     // TODO(Bieber): See if you need to make a copy before returning the buffer
     encode: function(buffer) {
@@ -1940,12 +1940,15 @@ var Encoder = {
         }
         Encoder.process();
         _this.postMessage({
-            'command': 'done'
+            'command': 'finalized'
         });
     },
 
     clear: function() {
         Encoder.samples = [];
+        _this.postMessage({
+            'command': 'cleared'
+        });
     }
 };
 

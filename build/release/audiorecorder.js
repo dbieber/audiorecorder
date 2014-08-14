@@ -1746,7 +1746,7 @@ Ogg.prototype.bitstream = function () {
 	return this.data.join("");
 };
 var Codec = {
-    speex: new Speex({quality: 4}),
+    speex: new Speex({quality: 6}),
 
     // TODO(Bieber): See if you need to make a copy before returning the buffer
     encode: function(buffer) {
@@ -1897,13 +1897,9 @@ var Html5Audio = {
     ready: false,
     recording: false,
 
-    clip: undefined,
-
     init: function(config) {
         Html5Audio.audioContext = new AudioContext();
         navigator.getUserMedia({audio: true}, Html5Audio._useStream, function(err){});
-
-        Html5Audio.clip = Clip.create(); // new
 
         var worker_path = (config && config.worker_path) || Html5Audio.DEFAULT_WORKER_PATH;
         try {
@@ -1936,7 +1932,7 @@ var Html5Audio = {
         var buffer = event.inputBuffer.getChannelData(0);
         if (Html5Audio.recording) {
             // Add the samples immediately to the Clip
-            Clip.addSamples(Html5Audio.clip, buffer);
+            Clip.addSamples(AudioRecorder.clip, buffer);
 
             // In the background, in multiples of 160, encode the samples
             // And push the encoded data back into the Clip ASAP.
@@ -1951,11 +1947,15 @@ var Html5Audio = {
         switch(event.data.command) {
             case 'speex':
             var data = event.data.data;
-            Clip.addSpeex(Html5Audio.clip, data);
+            Clip.addSpeex(AudioRecorder.clip, data);
             break;
 
-            case 'done':
-            Html5Audio.cb(Html5Audio.clip);
+            case 'finalized':
+            Html5Audio.cb(AudioRecorder.clip);
+            break;
+
+            case 'cleared':
+            Clip.setSamples(AudioRecorder.clip, []);
             break;
 
             case 'print':
@@ -1975,15 +1975,10 @@ var Html5Audio = {
             Html5Audio.worker.postMessage({
                 command: 'finalize'
             });
-            Html5Audio.clear();
         }
     },
 
-    getClip: function() {
-        return Html5Audio.clip;
-    },
-
-    clear: function() {
+    clear: function(cb) {
         Html5Audio.worker.postMessage({
             command: 'clear'
         });
@@ -2058,6 +2053,7 @@ var FlashAudio = {
 
 // TODO(Bieber): Make it work in Safari by falling back to Flash.
 var AudioRecorder = {
+    clip: undefined,
     middleware: undefined, // HTML5 or Flash audio
 
     init: function(config) {
@@ -2088,7 +2084,11 @@ var AudioRecorder = {
     },
 
     getClip: function() {
-        return AudioRecorder.middleware.getClip();
+        return AudioRecorder.clip;
+    },
+
+    setClip: function(clip) {
+        AudioRecorder.clip = clip;
     },
 
     clear: function() {

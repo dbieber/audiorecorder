@@ -52,12 +52,15 @@ var Encoder = {
         }
         Encoder.process();
         _this.postMessage({
-            'command': 'done'
+            'command': 'finalized'
         });
     },
 
     clear: function() {
         Encoder.samples = [];
+        _this.postMessage({
+            'command': 'cleared'
+        });
     }
 };
 

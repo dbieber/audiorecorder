@@ -3,6 +3,7 @@
 
 // TODO(Bieber): Make it work in Safari by falling back to Flash.
 var AudioRecorder = {
+    clip: undefined,
     middleware: undefined, // HTML5 or Flash audio
 
     init: function(config) {
@@ -33,7 +34,11 @@ var AudioRecorder = {
     },
 
     getClip: function() {
-        return AudioRecorder.middleware.getClip();
+        return AudioRecorder.clip;
+    },
+
+    setClip: function(clip) {
+        AudioRecorder.clip = clip;
     },
 
     clear: function() {
