@@ -49,8 +49,9 @@ var addDownloadLink = function(clip, name) {
 
     var url = "data:" + mimetype + ";base64," + btoa(file);
     var container = document.querySelector(sel);
-    var anchor =  "<br/><a download=\"" + filename + "\" href=\"" +
-        url + "\">" + filename + " (" + file.length / 1024.0 + " Kbytes)</a>";
+    var KB = Math.round(file.length / 1024.0 * 100) / 100;
+    var anchor =  "<div><a download=\"" + filename + "\" href=\"" +
+        url + "\">" + filename + " (" + KB + " KB)</a></div>";
 
     container.innerHTML += anchor;
 };
