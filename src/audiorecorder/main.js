@@ -22,15 +22,27 @@ var AudioRecorder = {
 
     record: function() {
         // Starts recording to the current clip
-        if (AudioRecorder.isRecording()) return;
-        AudioRecorder.middleware.record();
+        if (AudioRecorder.clip === undefined) {
+            AudioRecorder.newClip();
+        }
+        if (AudioRecorder.isRecording()) return true;
+        return AudioRecorder.middleware.record();
     },
 
     stopRecording: function(cb) {
         // Stops recording and passes the newly created clip object to the
         // callback function cb
-        if (!AudioRecorder.isRecording()) return;
-        AudioRecorder.middleware.stopRecording(cb);
+        if (!AudioRecorder.isRecording()) return true;
+        return AudioRecorder.middleware.stopRecording(cb);
+    },
+
+    newClip: function() {
+        if (AudioRecorder.isRecording()) {
+            console.warn("Cannot create a new clip while recording");
+            return false;
+        }
+        AudioRecorder.clip = Clip.create();
+        return true;
     },
 
     getClip: function() {
@@ -38,12 +50,17 @@ var AudioRecorder = {
     },
 
     setClip: function(clip) {
+        if (AudioRecorder.isRecording()) {
+            console.warn("Cannot set the clip while recording");
+            return false;
+        }
         AudioRecorder.clip = clip;
     },
 
     clear: function() {
         // Clears the current clip back to empty
         AudioRecorder.middleware.clear();
+        return true;
     },
 
     playClip: function(clip, inHowLong, offset) {
@@ -56,11 +73,13 @@ var AudioRecorder = {
             offset = 0;
         }
         AudioRecorder.middleware.playClip(clip, inHowLong, offset);
+        return true;
     },
 
     stopPlaying: function() {
         // Stops all playing clips
         AudioRecorder.middleware.stopPlaying();
+        return true;
     },
 
     isRecording: function() {

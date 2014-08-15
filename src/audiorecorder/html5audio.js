@@ -63,6 +63,7 @@ var Html5Audio = {
             break;
 
             case 'finalized':
+            Clip.finalize(AudioRecorder.clip);
             Html5Audio.cb(AudioRecorder.clip);
             break;
 

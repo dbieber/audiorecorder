@@ -6,6 +6,7 @@ var Clip = {
             sampleRate: 44100, // TODO(Bieber): Use actual sample rate
             speex: [],
             startTime: undefined,
+            finalized: false
         };
     },
 
@@ -70,5 +71,9 @@ var Clip = {
     // Returns clip length in milliseconds.
     getLength: function(clip) {
         return 1000 * clip.samples.length / clip.sampleRate;
+    },
+
+    finalize: function(clip) {
+        clip.finalized = true;
     }
 };

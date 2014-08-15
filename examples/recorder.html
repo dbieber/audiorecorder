@@ -24,6 +24,10 @@ function createClicked() {
 
 function recordClicked() {
     AudioRecorder.record();
+    if (computedState.noneSelected) {
+        clips.push(AudioRecorder.getClip());
+    }
+    renderClips();
 }
 
 function callback() {
@@ -51,7 +55,13 @@ var addDownloadLink = function(clip, name) {
     container.innerHTML += anchor;
 };
 
+var computedState;
 function renderClips() {
+    computedState = {
+        selected: -1,
+        noneSelected: true
+    };
+
     var clipsNode = document.getElementById("clips");
 
     function table(x) {
@@ -91,20 +101,30 @@ function renderClips() {
         var hdr = "";
         hdr += th("selected");
         hdr += th("id");
+        hdr += th("finalized");
         hdr += th("select");
-        hdr += th("length");
-        hdr += th("PCM Samples");
-        hdr += th("Speex Samples");
+        hdr += th("length (ms)");
+        hdr += th("PCM Samples (32 bit)");
+        hdr += th("Speex Samples (8 bit)");
         hdr += th("Play");
         hdr += th("Decode from Speex");
         hdr += th("Experimental Download");
         clipsHtml += tr(hdr);
         for (var i = 0; i < clips.length; i++) {
+            var selected = AudioRecorder.getClip() === clips[i];
+            if (selected) {
+                computedState.selected = i;
+                computedState.noneSelected = false;
+            }
+
+            var length = Math.round(Clip.getLength(clips[i]) * 100) / 100;
+
             var row = "";
-            row += td(AudioRecorder.getClip() === clips[i] ? 'Yes' : 'No');
+            row += td(selected ? 'Yes' : 'No');
             row += td(i);
+            row += td(clips[i].finalized ? 'Yes' : 'No');
             row += td(selectButton(i));
-            row += td(Clip.getLength(clips[i]));
+            row += td(length);
             row += td(clips[i].samples.length);
             row += td(clips[i].speex.length);
             row += td(playButton(i));
@@ -122,7 +142,7 @@ function renderClips() {
         </script>
     </head>
     <body>
-
+        Click a button to run the command.
         <p>
         <button onclick="initClicked()">
             AudioRecorder.init(config)
