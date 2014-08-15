@@ -1957,7 +1957,7 @@ var Html5Audio = {
 
             case 'finalized':
             Clip.finalize(AudioRecorder.clip);
-            Html5Audio.cb(AudioRecorder.clip);
+            if (Html5Audio.cb) Html5Audio.cb(AudioRecorder.clip);
             break;
 
             case 'cleared':
@@ -2078,10 +2078,13 @@ var AudioRecorder = {
 
     record: function() {
         // Starts recording to the current clip
-        if (AudioRecorder.clip === undefined) {
+        if (AudioRecorder.isRecording()) return true;
+
+        // If we can't record on the current clip, make a new one
+        if (AudioRecorder.clip === undefined || AudioRecorder.clip.finalized) {
             AudioRecorder.newClip();
         }
-        if (AudioRecorder.isRecording()) return true;
+
         return AudioRecorder.middleware.record();
     },
 

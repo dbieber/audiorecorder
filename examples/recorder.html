@@ -156,7 +156,7 @@ function renderClips() {
 
         <p>
         <button class="needs_init" onclick="recordClicked();">
-            AudioRecorder.record()
+            AudioRecorder.record()*
         </button>
         <button class="needs_init"  onclick="stopRecordingClicked();">
             AudioRecorder.stopRecording(callback)
@@ -175,6 +175,8 @@ function renderClips() {
         Then visit <a href="http://localhost:8081/examples/recorder.html">http://localhost:8081/examples/recorder.html</a>.<br/>
         Or do the equivalent on your system... but it won't work if you just open the local file recorder.html in a browser.
 
+        <p>
+        *In addition to running AudioRecorder.record(), this button calls clips.push(AudioRecorder.getClip()) if necessary.
     </body>
     <script type="text/javascript">
         renderClips();

@@ -64,7 +64,7 @@ var Html5Audio = {
 
             case 'finalized':
             Clip.finalize(AudioRecorder.clip);
-            Html5Audio.cb(AudioRecorder.clip);
+            if (Html5Audio.cb) Html5Audio.cb(AudioRecorder.clip);
             break;
 
             case 'cleared':

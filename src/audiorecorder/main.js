@@ -22,10 +22,13 @@ var AudioRecorder = {
 
     record: function() {
         // Starts recording to the current clip
-        if (AudioRecorder.clip === undefined) {
+        if (AudioRecorder.isRecording()) return true;
+
+        // If we can't record on the current clip, make a new one
+        if (AudioRecorder.clip === undefined || AudioRecorder.clip.finalized) {
             AudioRecorder.newClip();
         }
-        if (AudioRecorder.isRecording()) return true;
+
         return AudioRecorder.middleware.record();
     },
 
