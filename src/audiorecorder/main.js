@@ -40,6 +40,7 @@ var AudioRecorder = {
     },
 
     newClip: function() {
+        // Creates a new empty clip as the current clip
         if (AudioRecorder.isRecording()) {
             console.warn("Cannot create a new clip while recording");
             return false;
@@ -49,10 +50,12 @@ var AudioRecorder = {
     },
 
     getClip: function() {
+        // Returns the current clips
         return AudioRecorder.clip;
     },
 
     setClip: function(clip) {
+        // Sets the current clip
         if (AudioRecorder.isRecording()) {
             console.warn("Cannot set the clip while recording");
             return false;

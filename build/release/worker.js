@@ -1716,12 +1716,11 @@ Ogg.prototype.mux = function (d, o) {
 	if (d.length == 2)
 		return str;
 
-
 	// data page
 	var data = d[2];
 	var segments = data[1].chunk(100)
 	  , stream = String.fromCharCode.apply(null,
-	  		new Uint8Array(data[0].buffer))
+	  		new Uint8Array(data[0]))  // TODO(Bieber)
 	  , a = 0
 	  , b = 0
 	  , len = segments.length;
@@ -1746,43 +1745,79 @@ Ogg.prototype.bitstream = function () {
 	return this.data.join("");
 };
 var Codec = {
-    speex: new Speex({quality: 6}),
+    speex: new Speex({
+        quality: 4,
+        mode: 1,
+        bits_size: 70
+    }),
 
-    // TODO(Bieber): See if you need to make a copy before returning the buffer
-    encode: function(buffer) {
+    encode: function(buffer, copy) {
         // To preserve length, encode a multiple of 320 samples.
         var datalen = buffer.length;
         var shorts = new Int16Array(datalen);
         for(var i = 0; i < datalen; i++) {
             shorts[i] = Math.floor(Math.min(1.0, Math.max(-1.0, buffer[i])) * 32767);
         }
-        var encoded = Codec.speex.encode(shorts, true);
-        return encoded[0];
+        var encoded_buffer = Codec.speex.encode(shorts, true);
+        if (!copy) return encoded_buffer;
+
+        // Return a copy of the buffer
+        var encoded = [[],[]];
+        Array.prototype.push(encoded[0], encoded_buffer[0]);
+        Array.prototype.push(encoded[1], encoded_buffer[1]);
+        return encoded;
     },
 
-    decode: function(buffer) {
-        return Codec.speex.decode(buffer);
+    decode: function(buffer, copy) {
+        var decoded_buffer = Codec.speex.decode(buffer);
+        if (!copy) return decoded_buffer;
+
+        // Return a copy of the buffer
+        var decoded = [];
+        Array.prototype.push(decoded, decoded_buffer);
+        return decoded;
     }
 };
+// Defines the Clip API
+var Clip = {
+    create: function() {
+        return {
+            samples: [],
+            sampleRate: 44100, // TODO(Bieber): Use actual sample rate
+            speex: [[],[]], // samples, frame sizes
+            startTime: undefined,
+            finalized: false
+        };
+    },
 
-var FileHandler = {
-    speexFile: function(data) {
-        var sampleRate = 44100;
+    createFromSamples: function(samples) {
+        var clip = Clip.create();
+        Clip.setSamples(clip, samples);
+        return clip;
+    },
+
+    createFromSpeex: function(speex) {
+        var clip = Clip.create();
+        Clip.setSpeex(clip, speex);
+        return clip;
+    },
+
+    createFromWaveFile: function(wav) {
+
+    },
+
+    createFromSpeexFile: function(spx) {
+
+    },
+
+    asWaveFile: function(clip) {
+
+    },
+
+    asSpeexFile: function(clip) {
+        var sampleRate = clip.sampleRate;
         var isNarrowband = sampleRate < 16000;
         var oggdata = new Ogg(null, {file: true});
-
-        var spxcodec = new Speex({
-            quality: 8,
-            mode: isNarrowband ? 0 : 1,
-            bits_size: isNarrowband ? 15 : 70
-        });
-
-        var datalen = data.length;
-        var shorts = new Int16Array(datalen);
-        for(var i = 0; i < datalen; i++) {
-            shorts[i] = Math.floor(Math.min(1.0, Math.max(-1.0, data[i])) * 32767);
-        }
-        spxdata = spxcodec.encode(shorts, true);
 
         var spxhdr = new SpeexHeader({
             bitrate: -1,
@@ -1808,32 +1843,10 @@ var FileHandler = {
             vendor_length: comment.length
         });
 
+        var spxdata = clip.speex;
+
         var result = oggdata.mux([spxhdr, spxcmt, spxdata]);
         return result;
-    }
-};
-// Defines the Clip API
-var Clip = {
-    create: function() {
-        return {
-            samples: [],
-            sampleRate: 44100, // TODO(Bieber): Use actual sample rate
-            speex: [],
-            startTime: undefined,
-            finalized: false
-        };
-    },
-
-    createFromSamples: function(samples) {
-        var clip = Clip.create();
-        Clip.setSamples(clip, samples);
-        return clip;
-    },
-
-    createFromSpeex: function(speex) {
-        var clip = Clip.create();
-        Clip.setSpeex(clip, speex);
-        return clip;
     },
 
     setStartTime: function(clip, time) {
@@ -1857,20 +1870,23 @@ var Clip = {
 
     // WARNING: Leaves samples out of date.
     addSpeex: function(clip, data) {
-        Array.prototype.push.apply(clip.speex, data);
+        Array.prototype.push.apply(clip.speex[0], data[0]);
+        Array.prototype.push.apply(clip.speex[1], data[1]);
     },
 
     // WARNING: Potentially slow.
     computeSamples: function(clip) {
         // Decodes speex data to get playable samples
         // TODO(Bieber): Make a copy
-        clip.samples = Codec.decode(clip.speex);
+        // TODO(Bieber): Move to background thread
+        clip.samples = Codec.decode(clip.speex[0]);
     },
 
     // WARNING: Potentially slow.
     computeSpeex: function(clip) {
         // Encodes samples to get smaller speex data
         // TODO(Bieber): Make a copy
+        // TODO(Bieber): Move to background thread
         clip.speex = Codec.encode(clip.samples);
     },
 

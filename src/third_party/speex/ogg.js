@@ -269,12 +269,11 @@ Ogg.prototype.mux = function (d, o) {
 	if (d.length == 2)
 		return str;
 
-
 	// data page
 	var data = d[2];
 	var segments = data[1].chunk(100)
 	  , stream = String.fromCharCode.apply(null,
-	  		new Uint8Array(data[0].buffer))
+	  		new Uint8Array(data[0]))  // TODO(Bieber)
 	  , a = 0
 	  , b = 0
 	  , len = segments.length;

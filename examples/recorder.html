@@ -42,7 +42,7 @@ function stopPlayingClicked() {
 }
 
 var addDownloadLink = function(clip, name) {
-    var file = FileHandler.speexFile(clip.samples);
+    var file = Clip.asSpeexFile(clip);
     var filename = name + ".ogg";
     var sel = ".downloads";
     var mimetype = "audio/ogg";
@@ -127,7 +127,7 @@ function renderClips() {
             row += td(selectButton(i));
             row += td(length);
             row += td(clips[i].samples.length);
-            row += td(clips[i].speex.length);
+            row += td(clips[i].speex[0].length);
             row += td(playButton(i));
             row += td(convertButton(i));
             row += td(downloadButton(i));
