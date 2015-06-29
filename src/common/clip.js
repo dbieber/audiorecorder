@@ -44,7 +44,7 @@ var Clip = {
     // WARNING: Leaves samples out of date.
     addSpeex: function(clip, data) {
         var tmp = new Uint8Array(clip.speex.byteLength + data.byteLength); 
-    	tmp.set(new Uint8Array(clip.sppex), 0); 
+    	tmp.set(new Uint8Array(clip.speex), 0); 
     	tmp.set(new Uint8Array(data), clip.speex.byteLength); 
     	clip.speex = tmp;
     },
