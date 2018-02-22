@@ -68,7 +68,7 @@ Returns True if currently recording, False otherwise
 Clip API
 ------------
 
-#### The best documentation is the code itself. Have a look at [src/clip.js](src/clip.js)?
+#### The best documentation is the code itself. Have a look at [src/common/clip.js](src/common/clip.js)?
 
 >clip.samples
 
@@ -96,7 +96,7 @@ Creates a new clip object from the provided speex encoded data
 
 Returns the length of `clip` in milliseconds
 
-#####And more! Take a look at [src/clip.js](src/clip.js) for the full API.
+##### And more! Take a look at [src/common/clip.js](src/common/clip.js) for the full API.
 
 Codec API
 ------------
