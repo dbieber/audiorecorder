@@ -1,8 +1,6 @@
 var Codec = {
     speex: new Speex({
-        quality: 8,
-        mode: 1,
-        bits_size: 70
+        quality: 6
     }),
 
     encode: function(buffer, copy) {

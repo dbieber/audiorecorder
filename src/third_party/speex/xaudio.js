@@ -153,7 +153,7 @@ Resampler.prototype.initializeBuffers = function (generateTailCache) {
 			this.audioHandle = new XAudioServer(2, 70000, 15000, 25000, function (sampleCount) {
 				return parentObj.audioUnderRun(sampleCount);
 			}, -1);
-	
+
 	The callback is passed the number of samples requested, while it can return any number of samples it wants back.
 */
 function XAudioServer(channels, sampleRate, minBufferSize, maxBufferSize, underRunCallback, defaultValue) {
@@ -398,7 +398,7 @@ XAudioServer.prototype.initializeFlashAudio = function () {
 //Moz Audio Buffer Writing Handler:
 XAudioServer.prototype.writeMozAudio = function (buffer) {
 	if (!buffer) {
-		return;	
+		return;
 	}
 
 	var length = this.mozAudioTail.length;
@@ -598,11 +598,11 @@ function resetCallbackAPIAudioBuffer(APISampleRate, bufferAlloc) {
 (function () {
 	if (!launchedContext) {
 		try {
-			audioContextHandle = new webkitAudioContext();							//Create a system audio context.
+			audioContextHandle = new AudioContext();							//Create a system audio context.
 		}
 		catch (error) {
 			try {
-				audioContextHandle = new AudioContext();								//Create a system audio context.
+				audioContextHandle = new webkitAudioContext();								//Create a system audio context.
 			}
 			catch (error) {
 				return;

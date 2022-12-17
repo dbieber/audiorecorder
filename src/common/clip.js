@@ -22,16 +22,55 @@ var Clip = {
         return clip;
     },
 
-    createFromWaveFile: function(wav) {
+    createFromWaveFile: function(file) {
 
     },
 
-    createFromSpeexFile: function(spx) {
+    createFromSpeexFile: function(file) {
 
     },
 
-    asWaveFile: function(clip) {
+    asWaveFile: function(clip, callback) {
+        // TODO(Bieber): Make this work
+        var samples = clip.samples;
+        var sampleRate = clip.sampleRate;
 
+        var buffer = new ArrayBuffer(44 + samples.length * 2);
+        var view = new DataView(buffer);
+
+        function floatTo16BitPCM(view, offset, input) {
+            for (var i = 0; i < input.length; i++, offset += 2) {
+                var s = Math.max(-1, Math.min(1, input[i]));
+                view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+            }
+        }
+
+        function writeString(view, offset, string) {
+            for (var i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
+        writeString(view, 0, 'RIFF');
+        view.setUint32(4, 44 + samples.length * 2, true);
+        writeString(view, 8, 'WAVE');
+        writeString(view, 12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);
+        view.setUint16(22, 2, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * 4, true);
+        view.setUint16(32, 4, true);
+        view.setUint16(34, 16, true);
+        writeString(view, 36, 'data');
+        view.setUint32(40, samples.length * 2, true);
+        floatTo16BitPCM(view, 44, samples);
+
+        var audioBlob = new Blob([view], {
+            type: 'wav'
+        });
+
+        return (window.URL || window.webkitURL).createObjectURL(audioBlob);
     },
 
     asSpeexFile: function(clip) {

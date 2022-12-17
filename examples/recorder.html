@@ -54,6 +54,19 @@ var addDownloadLink = function(clip, name) {
         url + "\">" + filename + " (" + KB + " KB)</a></div>";
 
     container.innerHTML += anchor;
+
+    var file = Clip.asWaveFile(clip);
+    var filename = name + ".wav";
+    var sel = ".downloads";
+    var mimetype = "audio/wav";
+
+    var url = file;
+    var container = document.querySelector(sel);
+    var KB = Math.round(file.size / 1024.0 * 100) / 100;
+    var anchor =  "<div><a download=\"" + filename + "\" href=\"" +
+        url + "\">" + filename + " (" + KB + " KB)</a></div>";
+
+    container.innerHTML += anchor;
 };
 
 var computedState;
@@ -89,6 +102,10 @@ function renderClips() {
         action = 'addDownloadLink(clips[' + i + '], \'clip' + i + '\')';
         return actionButton(action);
     }
+    function copyButton(i) {
+        action = 'clips.push(Clip.createFromSamples(clips[' + i + '].samples))';
+        return actionButton(action);
+    }
     function convertButton(i) {
         action = 'clips.push(Clip.createFromSpeex(clips[' + i + '].speex))';
         return actionButton(action);
@@ -108,7 +125,8 @@ function renderClips() {
         hdr += th("PCM Samples (32 bit)");
         hdr += th("Speex Samples (8 bit)");
         hdr += th("Play");
-        hdr += th("Decode from Speex");
+        hdr += th("Create New from PCM");
+        hdr += th("Create New from Speex");
         hdr += th("Experimental Download");
         clipsHtml += tr(hdr);
         for (var i = 0; i < clips.length; i++) {
@@ -129,6 +147,7 @@ function renderClips() {
             row += td(clips[i].samples.length);
             row += td(clips[i].speex[0].length);
             row += td(playButton(i));
+            row += td(copyButton(i));
             row += td(convertButton(i));
             row += td(downloadButton(i));
             clipsHtml += tr(row);
@@ -170,7 +189,7 @@ function renderClips() {
         <div class="downloads"></div>
 
         <p>
-        To run this example locally, from the AudioRecorder directory run the command:<br/>
+        To RUN this example locally, from the AudioRecorder directory run the command:<br/>
         python -m SimpleHTTPServer 8081<br/>
         Then visit <a href="http://localhost:8081/examples/recorder.html">http://localhost:8081/examples/recorder.html</a>.<br/>
         Or do the equivalent on your system... but it won't work if you just open the local file recorder.html in a browser.

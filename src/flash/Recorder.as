@@ -130,7 +130,7 @@ package {
                 }
                 return "";
             } else {
-                var ret:String="";
+                var ret:String = "";
                 buffer.position = 0;
                 while (buffer.bytesAvailable > 0) {
                     ret += buffer.readFloat().toString() + delimiter;
